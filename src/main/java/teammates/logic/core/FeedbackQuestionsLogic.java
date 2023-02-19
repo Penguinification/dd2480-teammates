@@ -44,6 +44,9 @@ public final class FeedbackQuestionsLogic {
 
     private final FeedbackQuestionsDb fqDb = FeedbackQuestionsDb.inst();
 
+    // Temporarily used for code coverage in FeedbackQuestionsLogicTest, should absolutely not be merged
+    public final Set<Integer> debugReachedBranches = new HashSet<>();
+
     private CoursesLogic coursesLogic;
     private FeedbackResponsesLogic frLogic;
     private FeedbackSessionsLogic fsLogic;
@@ -568,46 +571,59 @@ public final class FeedbackQuestionsLogic {
      */
     public void populateFieldsToGenerateInQuestion(FeedbackQuestionAttributes feedbackQuestionAttributes,
             String emailOfEntityDoingQuestion, String teamOfEntityDoingQuestion) {
+        debugReachedBranches.add(1);
         List<String> optionList;
 
         FeedbackParticipantType generateOptionsFor;
 
         if (feedbackQuestionAttributes.getQuestionType() == FeedbackQuestionType.MCQ) {
+            debugReachedBranches.add(2);
             FeedbackMcqQuestionDetails feedbackMcqQuestionDetails =
                     (FeedbackMcqQuestionDetails) feedbackQuestionAttributes.getQuestionDetailsCopy();
             optionList = feedbackMcqQuestionDetails.getMcqChoices();
             generateOptionsFor = feedbackMcqQuestionDetails.getGenerateOptionsFor();
         } else if (feedbackQuestionAttributes.getQuestionType() == FeedbackQuestionType.MSQ) {
+            debugReachedBranches.add(3);
             FeedbackMsqQuestionDetails feedbackMsqQuestionDetails =
                     (FeedbackMsqQuestionDetails) feedbackQuestionAttributes.getQuestionDetailsCopy();
             optionList = feedbackMsqQuestionDetails.getMsqChoices();
             generateOptionsFor = feedbackMsqQuestionDetails.getGenerateOptionsFor();
         } else {
             // other question types
+            debugReachedBranches.add(4);
             return;
         }
 
         switch (generateOptionsFor) {
         case NONE:
+            debugReachedBranches.add(5);
             break;
         case STUDENTS:
         case STUDENTS_IN_SAME_SECTION:
         case STUDENTS_EXCLUDING_SELF:
+            debugReachedBranches.add(6);
             List<StudentAttributes> studentList;
             if (generateOptionsFor == FeedbackParticipantType.STUDENTS_IN_SAME_SECTION) {
+                debugReachedBranches.add(7);
                 String courseId = feedbackQuestionAttributes.getCourseId();
                 StudentAttributes studentAttributes =
                         studentsLogic.getStudentForEmail(courseId, emailOfEntityDoingQuestion);
                 studentList = studentsLogic.getStudentsForSection(studentAttributes.getSection(), courseId);
             } else {
+                debugReachedBranches.add(8);
                 studentList = studentsLogic.getStudentsForCourse(feedbackQuestionAttributes.getCourseId());
             }
 
             if (generateOptionsFor == FeedbackParticipantType.STUDENTS_EXCLUDING_SELF) {
+                debugReachedBranches.add(9);
                 studentList.removeIf(studentInList -> studentInList.getEmail().equals(emailOfEntityDoingQuestion));
+            }
+            else {
+                debugReachedBranches.add(10);
             }
 
             for (StudentAttributes student : studentList) {
+                debugReachedBranches.add(11);
                 optionList.add(student.getName() + " (" + student.getTeam() + ")");
             }
 
@@ -616,43 +632,63 @@ public final class FeedbackQuestionsLogic {
         case TEAMS:
         case TEAMS_IN_SAME_SECTION:
         case TEAMS_EXCLUDING_SELF:
+            debugReachedBranches.add(12);
             try {
                 List<String> teams;
                 if (generateOptionsFor == FeedbackParticipantType.TEAMS_IN_SAME_SECTION) {
+                    debugReachedBranches.add(13);
                     String courseId = feedbackQuestionAttributes.getCourseId();
                     StudentAttributes studentAttributes =
                             studentsLogic.getStudentForEmail(courseId, emailOfEntityDoingQuestion);
                     teams = coursesLogic.getTeamsForSection(studentAttributes.getSection(), courseId);
                 } else {
+                    debugReachedBranches.add(14);
                     teams = coursesLogic.getTeamsForCourse(feedbackQuestionAttributes.getCourseId());
                 }
 
                 if (generateOptionsFor == FeedbackParticipantType.TEAMS_EXCLUDING_SELF) {
+                    debugReachedBranches.add(14);
                     teams.removeIf(team -> team.equals(teamOfEntityDoingQuestion));
+                }
+                else {
+                    debugReachedBranches.add(15);
                 }
 
                 for (String team : teams) {
+                    debugReachedBranches.add(16);
                     optionList.add(team);
                 }
 
                 optionList.sort(null);
             } catch (EntityDoesNotExistException e) {
+                debugReachedBranches.add(17);
                 assert false : "Course disappeared";
             }
             break;
         case OWN_TEAM_MEMBERS_INCLUDING_SELF:
         case OWN_TEAM_MEMBERS:
             if (teamOfEntityDoingQuestion != null) {
+                debugReachedBranches.add(18);
                 List<StudentAttributes> teamMembers = studentsLogic.getStudentsForTeam(teamOfEntityDoingQuestion,
                         feedbackQuestionAttributes.getCourseId());
 
                 if (generateOptionsFor == FeedbackParticipantType.OWN_TEAM_MEMBERS) {
+                    debugReachedBranches.add(19);
                     teamMembers.removeIf(teamMember -> teamMember.getEmail().equals(emailOfEntityDoingQuestion));
                 }
+                else {
+                    debugReachedBranches.add(20);
+                }
 
-                teamMembers.forEach(teamMember -> optionList.add(teamMember.getName()));
+                teamMembers.forEach(teamMember -> {
+                    debugReachedBranches.add(21);
+                    optionList.add(teamMember.getName());
+                });
 
                 optionList.sort(null);
+            }
+            else {
+                debugReachedBranches.add(22);
             }
             break;
         case INSTRUCTORS:
@@ -660,22 +696,26 @@ public final class FeedbackQuestionsLogic {
                     instructorsLogic.getInstructorsForCourse(feedbackQuestionAttributes.getCourseId());
 
             for (InstructorAttributes instructor : instructorList) {
+                debugReachedBranches.add(23);
                 optionList.add(instructor.getName());
             }
 
             optionList.sort(null);
             break;
         default:
+            debugReachedBranches.add(24);
             assert false : "Trying to generate options for neither students, teams nor instructors";
             break;
         }
 
         if (feedbackQuestionAttributes.getQuestionType() == FeedbackQuestionType.MCQ) {
+            debugReachedBranches.add(25);
             FeedbackMcqQuestionDetails feedbackMcqQuestionDetails =
                     (FeedbackMcqQuestionDetails) feedbackQuestionAttributes.getQuestionDetailsCopy();
             feedbackMcqQuestionDetails.setMcqChoices(optionList);
             feedbackQuestionAttributes.setQuestionDetails(feedbackMcqQuestionDetails);
         } else if (feedbackQuestionAttributes.getQuestionType() == FeedbackQuestionType.MSQ) {
+            debugReachedBranches.add(26);
             FeedbackMsqQuestionDetails feedbackMsqQuestionDetails =
                     (FeedbackMsqQuestionDetails) feedbackQuestionAttributes.getQuestionDetailsCopy();
             feedbackMsqQuestionDetails.setMsqChoices(optionList);
