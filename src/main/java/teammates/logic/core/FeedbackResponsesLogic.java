@@ -49,6 +49,8 @@ public final class FeedbackResponsesLogic {
     private InstructorsLogic instructorsLogic;
     private StudentsLogic studentsLogic;
 
+    public final Set<Integer> flaggedBranches = new HashSet<>();
+
     private FeedbackResponsesLogic() {
         // prevent initialization
     }
@@ -623,33 +625,47 @@ public final class FeedbackResponsesLogic {
             String userEmail, boolean isInstructor, StudentAttributes student,
             Set<String> studentsEmailInTeam, FeedbackResponseAttributes response,
             FeedbackQuestionAttributes relatedQuestion, InstructorAttributes instructor) {
-
+        flaggedBranches.add(1);
         boolean isVisibleResponse = false;
         if (isInstructor && relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.INSTRUCTORS)
                 || response.getRecipient().equals(userEmail)
                 && relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.RECEIVER)
                 || response.getGiver().equals(userEmail)
                 || !isInstructor && relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.STUDENTS)) {
+            flaggedBranches.add(2);
+
             isVisibleResponse = true;
         } else if (studentsEmailInTeam != null && !isInstructor) {
+            flaggedBranches.add(3);
+
             if ((relatedQuestion.getRecipientType() == FeedbackParticipantType.TEAMS
                     || relatedQuestion.getRecipientType() == FeedbackParticipantType.TEAMS_IN_SAME_SECTION
                     || relatedQuestion.getRecipientType() == FeedbackParticipantType.TEAMS_EXCLUDING_SELF)
                     && relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.RECEIVER)
                     && response.getRecipient().equals(student.getTeam())) {
+                flaggedBranches.add(4);
+
                 isVisibleResponse = true;
             } else if (relatedQuestion.getGiverType() == FeedbackParticipantType.TEAMS
                     && response.getGiver().equals(student.getTeam())) {
+                flaggedBranches.add(5);
+
                 isVisibleResponse = true;
             } else if (relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.OWN_TEAM_MEMBERS)
                     && studentsEmailInTeam.contains(response.getGiver())) {
+                flaggedBranches.add(6);
+
                 isVisibleResponse = true;
             } else if (relatedQuestion.isResponseVisibleTo(FeedbackParticipantType.RECEIVER_TEAM_MEMBERS)
                     && studentsEmailInTeam.contains(response.getRecipient())) {
+                flaggedBranches.add(7);
+
                 isVisibleResponse = true;
             }
         }
         if (isVisibleResponse && instructor != null) {
+            flaggedBranches.add(8);
+
             boolean isGiverSectionRestricted =
                     !instructor.isAllowedForPrivilege(response.getGiverSection(),
                             response.getFeedbackSessionName(),
@@ -664,6 +680,8 @@ public final class FeedbackResponsesLogic {
 
             boolean isNotAllowedForInstructor = isGiverSectionRestricted || isRecipientSectionRestricted;
             if (isNotAllowedForInstructor) {
+                flaggedBranches.add(9);
+
                 isVisibleResponse = false;
             }
         }
