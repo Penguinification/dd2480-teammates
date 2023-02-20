@@ -3,9 +3,15 @@ package teammates.common.datatransfer.questions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.testng.annotations.Test;
+import org.testng.annotations.AfterTest;
 
 import teammates.common.datatransfer.FeedbackParticipantType;
 import teammates.common.util.Const;
@@ -16,15 +22,46 @@ import teammates.test.BaseTestCase;
  * SUT: {@link FeedbackMsqQuestionDetails}.
  */
 public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
+    
+    //Aggregated result from all tests of the class will be stored in this datastructure
+    private static Set<Integer> debugReachedBranches = new HashSet<Integer>();
+
+    @AfterTest
+    public void afterTest(){
+        int coveredBranches = debugReachedBranches.size();
+        int totalBranches = 32;
+        Double branchCoverage = 100 * ((double) coveredBranches / totalBranches);
+        System.out.println("From aftertest: " + coveredBranches);
+        try {
+            File directory = new File("./build/reports/tests/coverage");
+            directory.mkdirs();
+            FileWriter writer = new FileWriter("./build/reports/tests/coverage/validateQuestionDetails.txt");
+            writer.write("Code coverage: " + branchCoverage.toString() + "%\n");
+            writer.write("Branches covered: ");
+            for (Integer i : debugReachedBranches) {
+                writer.write(i.toString() + " ");
+            }
+            writer.write("\nBranches not covered: ");
+            for (Integer i = 1; i < totalBranches; i++) {
+                if (!debugReachedBranches.contains(i)) {
+                    writer.write(i.toString() + " ");
+                }
+            }
+            writer.write("\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     public void testConstructor_defaultConstructor_fieldsShouldHaveCorrectDefaultValues() {
         FeedbackMsqQuestionDetails msqDetails = new FeedbackMsqQuestionDetails();
-
         assertEquals(FeedbackQuestionType.MSQ, msqDetails.getQuestionType());
         assertFalse(msqDetails.isHasAssignedWeights());
         assertTrue(msqDetails.getMsqWeights().isEmpty());
         assertEquals(0.0, msqDetails.getMsqOtherWeight());
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -36,6 +73,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_NOT_ENOUGH_CHOICES
                 + FeedbackMsqQuestionDetails.MSQ_MIN_NUM_OF_CHOICES + ".", errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -49,6 +87,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_WEIGHT, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -61,6 +100,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(0, errors.size());
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -74,6 +114,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_WEIGHT, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -89,6 +130,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_WEIGHT, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -106,7 +148,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         errors = msqDetails.validateQuestionDetails();
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_DUPLICATE_MSQ_OPTION, errors.get(0));
-
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -126,6 +168,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(1, errors.size());
         AssertHelper.assertContains(FeedbackMsqQuestionDetails.MSQ_ERROR_MAX_SELECTABLE_EXCEEDED_TOTAL, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -144,6 +187,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         List<String> errors = msqDetails.validateQuestionDetails();
         assertEquals(0, errors.size());
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -155,6 +199,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         AssertHelper.assertContains(FeedbackMsqQuestionDetails.MSQ_ERROR_EMPTY_MSQ_OPTION, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -168,6 +213,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         AssertHelper.assertContains(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_WEIGHT, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -183,6 +229,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         AssertHelper.assertContains(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_WEIGHT, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -195,6 +242,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         AssertHelper.assertContains(FeedbackMsqQuestionDetails.MSQ_ERROR_MIN_FOR_MIN_SELECTABLE_CHOICES, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -208,8 +256,10 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         assertEquals(1, errors.size());
         AssertHelper.assertContains(
                 FeedbackMsqQuestionDetails.MSQ_ERROR_MIN_SELECTABLE_MORE_THAN_NUM_CHOICES, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
+    
     @Test
     public void testValidateQuestionDetails_minChoicesMoreThanMax_shouldReturnError() {
         FeedbackMsqQuestionDetails msqDetails = new FeedbackMsqQuestionDetails();
@@ -222,6 +272,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         assertEquals(1, errors.size());
         AssertHelper.assertContains(
                 FeedbackMsqQuestionDetails.MSQ_ERROR_MIN_SELECTABLE_EXCEEDED_MAX_SELECTABLE, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -245,6 +296,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         feedbackMsqResponseDetails.setOtherFieldContent("");
         errors = msqQuestionDetails.validateResponsesDetails(Collections.singletonList(feedbackMsqResponseDetails), 0);
         assertEquals(0, errors.size());
+        debugReachedBranches.addAll(msqQuestionDetails.debugReachedBranches);
     }
 
     @Test
@@ -253,6 +305,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         msqQuestionDetails.setMsqChoices(Arrays.asList("choiceA", "choiceB"));
         msqQuestionDetails.setOtherEnabled(true);
         msqQuestionDetails.setHasAssignedWeights(false);
+        debugReachedBranches.addAll(msqQuestionDetails.debugReachedBranches);
 
         // typical case: answers not in valid choices
         FeedbackMsqResponseDetails feedbackMsqResponseDetails = new FeedbackMsqResponseDetails();
@@ -303,6 +356,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_OPTION, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -320,6 +374,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_OTHER_CONTENT_NOT_PROVIDED, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -339,6 +394,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(expectedError, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -358,6 +414,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(expectedError, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -373,6 +430,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_INVALID_OPTION, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -396,6 +454,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
 
         assertEquals(1, errors.size());
         assertEquals(FeedbackMsqQuestionDetails.MSQ_ERROR_NONE_OF_THE_ABOVE_ANSWER, errors.get(0));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -419,6 +478,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setMsqChoices(List.of("choice1", "choice 3"));
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -430,6 +490,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setGenerateOptionsFor(FeedbackParticipantType.INSTRUCTORS);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -441,6 +502,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setMaxSelectableChoices(32767);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -452,6 +514,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setMinSelectableChoices(32767);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -463,6 +526,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setMaxSelectableChoices(3);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -474,6 +538,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setMinSelectableChoices(32767);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -485,6 +550,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setOtherEnabled(false);
 
         assertTrue(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 
     @Test
@@ -500,5 +566,6 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
         newMsqDetails.setOtherEnabled(false);
 
         assertFalse(msqDetails.shouldChangesRequireResponseDeletion(newMsqDetails));
+        debugReachedBranches.addAll(msqDetails.debugReachedBranches);
     }
 }
