@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -1656,6 +1660,35 @@ public class FeedbackResponsesLogicTest extends BaseLogicTest {
                 bundle.getQuestionResponseMap().entrySet().iterator().next().getValue();
         assertEquals(4, responseForQuestion.size());
     }
+
+    @AfterTest
+    public void afterTestIsResponseVisibleForUserCoverage() {
+        int nrFlaggedBranches = frLogic.flaggedBranches.size();
+        int nrBranches = 9;
+
+        double coverage = ((double) nrFlaggedBranches) / ((double) nrBranches);
+        try {
+                File directory = new File("./build/reports/tests/coverage");
+                directory.mkdirs();
+                FileWriter writer = new FileWriter("./build/reports/tests/coverage/isResponseVisibleForUser.txt");
+                writer.write("Code coverage: " + coverage*100 + "%\n");
+                writer.write("Branches covered: ");
+                for (Integer i : frLogic.flaggedBranches) {
+                        writer.write(i.toString() + " ");
+                }
+                writer.write("\nBranches not covered: ");
+                for (Integer i = 1; i < nrBranches; i++) {
+                        if (!frLogic.flaggedBranches.contains(i)) {
+                                writer.write(i.toString() + " ");
+                        }
+                }
+                writer.write("\n");
+                writer.close();
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+    }
+
 
     private FeedbackQuestionAttributes getQuestionFromDatabase(DataBundle dataBundle, String jsonId) {
         FeedbackQuestionAttributes questionToGet = dataBundle.feedbackQuestions.get(jsonId);
