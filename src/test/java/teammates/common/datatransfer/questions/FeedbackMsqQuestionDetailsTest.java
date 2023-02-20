@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 
 import teammates.common.datatransfer.FeedbackParticipantType;
 import teammates.common.util.Const;
@@ -30,7 +29,7 @@ public class FeedbackMsqQuestionDetailsTest extends BaseTestCase {
     @AfterTest
     public void afterTest(){
         int coveredBranches = debugReachedBranches.size();
-        int totalBranches = 17;
+        int totalBranches = 32;
         Double branchCoverage = 100 * ((double) coveredBranches / totalBranches);
         System.out.println("From aftertest: " + coveredBranches);
         try {

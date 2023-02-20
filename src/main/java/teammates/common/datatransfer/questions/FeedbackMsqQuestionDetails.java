@@ -124,13 +124,17 @@ public class FeedbackMsqQuestionDetails extends FeedbackQuestionDetails {
                 debugReachedBranches.add(3);
                 errors.add(MSQ_ERROR_NOT_ENOUGH_CHOICES
                            + MSQ_MIN_NUM_OF_CHOICES + ".");
+            } else {
+                debugReachedBranches.add(4);
             }
 
             // If there are Empty Msq options entered trigger this error
             boolean isEmptyMsqOptionEntered = msqChoices.stream().anyMatch(msqText -> "".equals(msqText.trim()));
             if (isEmptyMsqOptionEntered) {
-                debugReachedBranches.add(4);
+                debugReachedBranches.add(5);
                 errors.add(MSQ_ERROR_EMPTY_MSQ_OPTION);
+            } else {
+                debugReachedBranches.add(6);
             }
 
             // If weights are enabled, number of choices and weights should be same.
@@ -138,46 +142,61 @@ public class FeedbackMsqQuestionDetails extends FeedbackQuestionDetails {
             // the msqChoices.size() will be greater than msqWeights.size(), in that case
             // trigger this error.
             if (hasAssignedWeights && msqChoices.size() != msqWeights.size()) {
-                debugReachedBranches.add(5);
+                debugReachedBranches.add(7);
                 errors.add(MSQ_ERROR_INVALID_WEIGHT);
+            } else {
+                debugReachedBranches.add(8);
             }
 
             // If weights are not enabled, but weight list is not empty or otherWeight is not 0
             // In that case, trigger this error.
             if (!hasAssignedWeights && (!msqWeights.isEmpty() || msqOtherWeight != 0)) {
-                debugReachedBranches.add(6);
+                debugReachedBranches.add(9);
                 errors.add(MSQ_ERROR_INVALID_WEIGHT);
+            }
+            else{
+                debugReachedBranches.add(10);
             }
 
             // If weight is enabled, but other option is disabled, and msqOtherWeight is not 0
             // In that case, trigger this error.
             if (hasAssignedWeights && !otherEnabled && msqOtherWeight != 0) {
-                debugReachedBranches.add(7);
+                debugReachedBranches.add(11);
                 errors.add(MSQ_ERROR_INVALID_WEIGHT);
+            } else{
+                debugReachedBranches.add(12);
             }
 
             // If weights are negative, trigger this error.
             if (hasAssignedWeights && !msqWeights.isEmpty()) {
-                debugReachedBranches.add(8);
+                debugReachedBranches.add(13);
                 msqWeights.stream()
                         .filter(weight -> weight < 0)
                         .forEach(weight -> errors.add(MSQ_ERROR_INVALID_WEIGHT));
+            } else{
+                debugReachedBranches.add(14);
             }
 
             // If 'Other' option is enabled, and other weight has negative value,
             // trigger this error.
             if (hasAssignedWeights && otherEnabled && msqOtherWeight < 0) {
-                debugReachedBranches.add(9);
+                debugReachedBranches.add(15);
                 errors.add(MSQ_ERROR_INVALID_WEIGHT);
+            } else{
+                debugReachedBranches.add(16);
             }
 
             //If there are duplicate mcq options trigger this error
             boolean isDuplicateOptionsEntered = msqChoices.stream().map(String::trim).distinct().count()
                                                 != msqChoices.size();
             if (isDuplicateOptionsEntered) {
-                debugReachedBranches.add(10);
+                debugReachedBranches.add(17);
                 errors.add(MSQ_ERROR_DUPLICATE_MSQ_OPTION);
+            } else{
+                debugReachedBranches.add(18);
             }
+        }else {
+            debugReachedBranches.add(19);
         }
 
         boolean isMaxSelectableChoicesEnabled = maxSelectableChoices != Const.POINTS_NO_VALUE;
@@ -186,32 +205,45 @@ public class FeedbackMsqQuestionDetails extends FeedbackQuestionDetails {
 
         int numOfMsqChoices = msqChoices.size() + (otherEnabled ? 1 : 0);
         if (isMsqChoiceValidatable && isMaxSelectableChoicesEnabled) {
-            debugReachedBranches.add(11);
+            debugReachedBranches.add(20);
             if (numOfMsqChoices < maxSelectableChoices) {
-                debugReachedBranches.add(12);
+                debugReachedBranches.add(21);
                 errors.add(MSQ_ERROR_MAX_SELECTABLE_EXCEEDED_TOTAL);
             } else if (maxSelectableChoices < 2) {
-                debugReachedBranches.add(13);
+                debugReachedBranches.add(22);
                 errors.add(MSQ_ERROR_MIN_FOR_MAX_SELECTABLE_CHOICES);
+            }else {
+                debugReachedBranches.add(23);
             }
+        } else {
+            debugReachedBranches.add(24);
         }
 
         if (isMsqChoiceValidatable && isMinSelectableChoicesEnabled) {
-            debugReachedBranches.add(14);
+            debugReachedBranches.add(25);
             if (minSelectableChoices < 1) {
-                debugReachedBranches.add(15);
+                debugReachedBranches.add(26);
                 errors.add(MSQ_ERROR_MIN_FOR_MIN_SELECTABLE_CHOICES);
+            } else{
+                debugReachedBranches.add(27);
             }
             if (minSelectableChoices > numOfMsqChoices) {
-                debugReachedBranches.add(16);
+                debugReachedBranches.add(28);
                 errors.add(MSQ_ERROR_MIN_SELECTABLE_MORE_THAN_NUM_CHOICES);
             }
+            else{
+                debugReachedBranches.add(29);
+            }
+        } else {
+            debugReachedBranches.add(30);
         }
 
         if (isMaxSelectableChoicesEnabled && isMinSelectableChoicesEnabled
                 && minSelectableChoices > maxSelectableChoices) {
-                    debugReachedBranches.add(17);
+                    debugReachedBranches.add(31);
             errors.add(MSQ_ERROR_MIN_SELECTABLE_EXCEEDED_MAX_SELECTABLE);
+        } else{
+            debugReachedBranches.add(32);
         }
 
         return errors;

@@ -1,7 +1,6 @@
 package teammates.common.datatransfer.questions;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import teammates.common.util.StringHelper;
@@ -13,7 +12,6 @@ public class FeedbackMsqResponseDetails extends FeedbackResponseDetails {
     private List<String> answers; // answers contain the "other" answer, if any
     private boolean isOther;
     private String otherFieldContent; //content of other field if "other" is selected as the answer
-    public Collection<? extends Integer> debugReachedBranches;
 
     public FeedbackMsqResponseDetails() {
         super(FeedbackQuestionType.MSQ);
