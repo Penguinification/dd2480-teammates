@@ -6,9 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.annotations.AfterTest;
 
 import teammates.common.datatransfer.AttributesDeletionQuery;
 import teammates.common.datatransfer.CourseRoster;
@@ -49,6 +53,33 @@ public class FeedbackQuestionsLogicTest extends BaseLogicTest {
     public void beforeMethod() {
         dataBundle = getTypicalDataBundle();
         removeAndRestoreTypicalDataBundle();
+    }
+
+    @AfterTest
+    public void afterTest() {
+        int coveredBranches = fqLogic.debugReachedBranches.size();
+        double totalBranches = 26;
+        Double coverage = 100 * ((double) coveredBranches) / totalBranches;
+        try {
+            File directory = new File("./build/reports/tests/coverage");
+            directory.mkdirs();
+            FileWriter writer = new FileWriter("./build/reports/tests/coverage/populateFieldsToGenerateInQuestion.txt");
+            writer.write("Code coverage: " + coverage.toString() + "%\n");
+            writer.write("Branches covered: ");
+            for (Integer i : fqLogic.debugReachedBranches) {
+                writer.write(i.toString() + " ");
+            }
+            writer.write("\nBranches not covered: ");
+            for (Integer i = 1; i < totalBranches; i++) {
+                if (!fqLogic.debugReachedBranches.contains(i)) {
+                    writer.write(i.toString() + " ");
+                }
+            }
+            writer.write("\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
