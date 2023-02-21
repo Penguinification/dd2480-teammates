@@ -195,66 +195,86 @@ public class GoogleCloudLoggingService implements LogService {
     private List<EntryListOption> convertLogSearchParams(LogSearchParams s, int pageSize) {
         LoggingOptions options = LoggingOptions.getDefaultInstance();
         QueryLogsParams q = s.queryLogsParams;
+        int CountNumber = 1;
 
         List<String> logFilters = new ArrayList<>();
         logFilters.add("timestamp>\"" + Instant.ofEpochMilli(q.getStartTime()).toString() + "\"");
         logFilters.add("timestamp<=\"" + Instant.ofEpochMilli(q.getEndTime()).toString() + "\"");
 
         if (!s.logName.isEmpty()) {
+            CountNumber ++;
             String logNameFilter = s.logName.stream()
                     .map(str -> "\"projects/" + options.getProjectId() + "/logs/" + str + "\"")
                     .collect(Collectors.joining(" OR "));
             logFilters.add("logName=(" + logNameFilter + ")");
         }
         if (s.resourceType != null) {
+            CountNumber ++;
             logFilters.add("resource.type=\"" + s.resourceType + "\"");
         }
         if (q.getSeverity() != null) {
+            CountNumber ++;
             logFilters.add("severity=" + q.getSeverity());
         } else if (q.getMinSeverity() != null && q.getSeverity() == null) {
+            CountNumber ++;
             logFilters.add("severity>=" + q.getMinSeverity());
         }
         if (q.getTraceId() != null) {
+            CountNumber ++;
             logFilters.add("trace=\"" + TRACE_PREFIX + q.getTraceId() + "\"");
         }
         if (q.getActionClass() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.actionClass=\"" + q.getActionClass() + "\"");
         }
         if (q.getUserInfoParams() != null) {
+            CountNumber ++;
             if (q.getUserInfoParams().getGoogleId() != null) {
+                CountNumber ++;
                 logFilters.add("jsonPayload.userInfo.googleId=\"" + q.getUserInfoParams().getGoogleId() + "\"");
             }
             if (q.getUserInfoParams().getRegkey() != null) {
+                CountNumber ++;
                 logFilters.add("jsonPayload.userInfo.regkey=\"" + q.getUserInfoParams().getRegkey() + "\"");
             }
             if (q.getUserInfoParams().getEmail() != null) {
+                CountNumber ++;
                 logFilters.add("jsonPayload.userInfo.email=\"" + q.getUserInfoParams().getEmail() + "\"");
             }
         }
         if (q.getLogEvent() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.event=\"" + q.getLogEvent() + "\"");
         }
         if (q.getSourceLocation() != null && q.getSourceLocation().getFile() != null) {
+            CountNumber ++;
             if (q.getSourceLocation().getFunction() == null) {
+                CountNumber ++;
                 logFilters.add("sourceLocation.file=\"" + q.getSourceLocation().getFile() + "\"");
             } else {
+                CountNumber ++;
                 logFilters.add("sourceLocation.file=\"" + q.getSourceLocation().getFile()
                         + "\" AND sourceLocation.function=\"" + q.getSourceLocation().getFunction() + "\"");
             }
         }
         if (q.getExceptionClass() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.exceptionClass=\"" + q.getExceptionClass() + "\"");
         }
         if (q.getLatency() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.responseTime" + q.getLatency());
         }
         if (q.getStatus() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.responseStatus=" + q.getStatus());
         }
         if (q.getVersion() != null) {
+            CountNumber ++;
             logFilters.add("jsonPayload.webVersion=\"" + q.getVersion() + "\"");
         }
         if (q.getExtraFilters() != null) {
+            CountNumber ++;
             logFilters.add(q.getExtraFilters());
         }
         String logFilter = String.join("\n", logFilters);
@@ -264,17 +284,22 @@ public class GoogleCloudLoggingService implements LogService {
         entryListOptions.add(EntryListOption.filter(logFilter));
 
         if (pageSize > 0) {
+            CountNumber ++;
             entryListOptions.add(EntryListOption.pageSize(pageSize));
         }
 
         if (q.getOrder() != null) {
+            CountNumber ++;
             if (ASCENDING_ORDER.equals(q.getOrder())) {
+                CountNumber ++;
                 entryListOptions.add(EntryListOption.sortOrder(SortingField.TIMESTAMP, SortingOrder.ASCENDING));
             } else {
+                CountNumber ++;
                 entryListOptions.add(EntryListOption.sortOrder(SortingField.TIMESTAMP, SortingOrder.DESCENDING));
             }
         }
-
+        
+        System.out.println(CountNumber);
         return entryListOptions;
     }
 
