@@ -57,6 +57,37 @@ public class FeedbackQuestionsLogicTest extends BaseLogicTest {
         removeAndRestoreTypicalDataBundle();
     }
 
+    //Aggregated result from all tests of the class will be stored in this datastructure
+    private static Set<Integer> debugReachedBranches = new HashSet<Integer>();
+    
+    @AfterTest
+    public void afterTest() {
+        int coveredBranches = fqLogic.debugReachedBranches.size();
+        double totalBranches = 52;
+        Double branchCoverage = 100 * ((double) coveredBranches / totalBranches);
+        System.out.println("From aftertest: " + coveredBranches);
+        try {
+                File directory = new File("./build/reports/tests/coverage");
+                directory.mkdirs();
+                FileWriter writer = new FileWriter("./build/reports/tests/coverage/getRecipientsOfQuestion.txt");
+                writer.write("Code coverage: " + branchCoverage.toString() + "%\n");
+                writer.write("Branches covered: ");
+                for (Integer i : frLogic.debugReachedBranches) {
+                        writer.write(i.toString() + " ");
+                }
+                writer.write("\nBranches not covered: ");
+                for (Integer i = 1; i < totalBranches; i++) {
+                        if (!Arrays.asList(frLogic.debugReachedBranches).contains(i)) {
+                                writer.write(i.toString() + " ");
+                        }
+                }
+                writer.write("\n");
+                writer.close();
+        } catch (IOException e) {
+                e.printStackTrace();
+        }
+    }    
+    
     @Test
     public void testDeleteFeedbackQuestions_byCourseIdAndSessionName_shouldDeleteQuestions() {
         FeedbackSessionAttributes fsa = dataBundle.feedbackSessions.get("session1InCourse1");
@@ -90,34 +121,6 @@ public class FeedbackQuestionsLogicTest extends BaseLogicTest {
         testAddQuestion();
     }
 
-
-    @AfterTest
-    public void afterTest() {
-        int coveredBranches = fqLogic.debugReachedBranches.size();
-        double totalBranches = 52;
-        Double branchCoverage = 100 * ((double) coveredBranches / totalBranches);
-        System.out.println("From aftertest: " + coveredBranches);
-        try {
-                File directory = new File("./build/reports/tests/coverage");
-                directory.mkdirs();
-                FileWriter writer = new FileWriter("./build/reports/tests/coverage/getRecipientsOfQuestion.txt");
-                writer.write("Code coverage: " + branchCoverage.toString() + "%\n");
-                writer.write("Branches covered: ");
-                for (Integer i : frLogic.debugReachedBranches) {
-                        writer.write(i.toString() + " ");
-                }
-                writer.write("\nBranches not covered: ");
-                for (Integer i = 1; i < totalBranches; i++) {
-                        if (!Arrays.asList(frLogic.debugReachedBranches).contains(i)) {
-                                writer.write(i.toString() + " ");
-                        }
-                }
-                writer.write("\n");
-                writer.close();
-        } catch (IOException e) {
-                e.printStackTrace();
-        }
-    }    
 
     @Test
     public void testGetRecipientsOfQuestion() throws Exception {
