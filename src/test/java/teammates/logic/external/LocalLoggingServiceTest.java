@@ -12,7 +12,6 @@ public class LocalLoggingServiceTest extends BaseLogicTest {
 
         assertTrue(localLoggingService.isRequestFilterSatisfied(null, null, null, null, null, null, null));
     }
-}
 
     @Test
     public void testIsRequestFilterSatisfied_logDetailsNotREQUEST_LOG() {
@@ -22,3 +21,10 @@ public class LocalLoggingServiceTest extends BaseLogicTest {
 
         assertFault(localLoggingService.isRequestFilterSatisfied(logDetails, "foodoo", null, null, null, null, null));
     }
+   
+    
+    System.out.printf("the code coverage is 2/27 (count by hand)");
+
+    
+}
+
